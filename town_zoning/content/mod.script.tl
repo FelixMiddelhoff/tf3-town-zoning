@@ -15,6 +15,14 @@ mod.preRunFn = function(captureParams, _configDict : {{string, string}}, allModP
 		tutorialOn = true
 	end
 
+	-- the three former estate mods must be off: they would change the same towns
+	local oldMods = { "felix_residential_estate_towns_1", "felix_commercial_estate_towns_1", "felix_industrial_estate_towns_1" }
+	for _, oldId in ipairs(oldMods) do
+		if allModParams[oldId] ~= nil then
+			log.message("TownZoning WARNING: the mod " .. oldId .. " is active. Deactivate it, it replaces the same towns.")
+		end
+	end
+
 	local channel = 1000
 	if split then
 		channel = channel + 1

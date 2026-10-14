@@ -9,9 +9,11 @@ Replaces the three estate mods (Residential, Commercial, Industrial Estate Towns
 | `[c]` | commercial |
 | `[r]` | residential |
 | `[i]` | industrial |
-| `[cr]` | commercial and residential |
-| `[ci]` | commercial and industrial |
-| `[ri]` | residential and industrial |
+| `[cr]` or `[rc]` | commercial and residential |
+| `[ci]` or `[ic]` | commercial and industrial |
+| `[ri]` or `[ir]` | residential and industrial |
+
+The order of the letters does not matter.
 
 Old words still work: `[res]`, `#res`, `residen`, `housing`, `wohn…` (residential); `[c]`, `commerc`, `gewerbe` (commercial); `[ind]`, `#ind`, `indus`, `fabrik`, `factory` (industrial).
 
@@ -45,9 +47,11 @@ Ersetzt die drei Estate-Mods (Residential, Commercial, Industrial Estate Towns).
 | `[c]` | Gewerbe |
 | `[r]` | Wohnen |
 | `[i]` | Industrie |
-| `[cr]` | Gewerbe und Wohnen |
-| `[ci]` | Gewerbe und Industrie |
-| `[ri]` | Wohnen und Industrie |
+| `[cr]` oder `[rc]` | Gewerbe und Wohnen |
+| `[ci]` oder `[ic]` | Gewerbe und Industrie |
+| `[ri]` oder `[ir]` | Wohnen und Industrie |
+
+Die Reihenfolge der Buchstaben ist egal.
 
 Die alten Wörter funktionieren weiter: `[res]`, `#res`, `residen`, `housing`, `wohn…` (Wohnen); `[c]`, `commerc`, `gewerbe` (Gewerbe); `[ind]`, `#ind`, `indus`, `fabrik`, `factory` (Industrie).
 

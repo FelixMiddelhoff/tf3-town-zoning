@@ -157,6 +157,70 @@ local savedSizes = function(state2 : {string : number}, e : string) : {number}
 	}
 end
 
+-- the zones of a stored key (1 = housing, 2 = commerce, 4 = industry)
+local keepFromKey = function(key : integer) : {integer : boolean}
+	local keep : {integer : boolean} = {}
+	keep[1] = key % 2 == 1
+	keep[2] = math.floor(key / 2) % 2 == 1
+	keep[3] = key >= 4
+	return keep
+end
+
+-- capacities to restore a converted town to. After a split the town keeps its current total space and gets the
+-- original proportions back, so it does not shrink when it was changed during the game. Without a split the kept
+-- zones stay as they are and only the removed zones get their original capacities back. nil when nothing was saved.
+local restoredCaps = function(state2 : {string : number}, e : string, caps : {integer}, sizes : {number}) : {integer}
+	local orig = savedCaps(state2, e)
+	if not orig then
+		return nil
+	end
+	local origSizes = savedSizes(state2, e)
+	local result : {integer} = { caps[1], caps[2], caps[3] }
+
+	if (state2["sp" .. e] or 0) == 1 then
+		local currentSpace = 0.0
+		local originalSpace = 0.0
+		for i = 1, 3 do
+			currentSpace = currentSpace + caps[i] * sizeOf(sizes[i])
+			originalSpace = originalSpace + orig[i] * origSizes[i]
+		end
+		for i = 1, 3 do
+			if orig[i] > 0 and originalSpace > 0 then
+				local value = math.floor(currentSpace * orig[i] / originalSpace + 0.5)
+				if value < MinCapacity then
+					value = MinCapacity
+				end
+				result[i] = value
+			end
+		end
+		log.message("TownZoning: restore space of town " .. e .. " current=" .. tostring(math.floor(currentSpace + 0.5)) .. " original=" .. tostring(math.floor(originalSpace + 0.5)))
+	else
+		local keep = keepFromKey(state2["k" .. e] or 0)
+		for i = 1, 3 do
+			if not keep[i] then
+				result[i] = orig[i]
+			end
+		end
+	end
+	return result
+end
+
+-- sizes to restore: after a split the original sizes, otherwise the kept zones keep their current size
+local restoredSizes = function(state2 : {string : number}, e : string, sizes : {number}) : {number}
+	local origSizes = savedSizes(state2, e)
+	if (state2["sp" .. e] or 0) == 1 then
+		return origSizes
+	end
+	local keep = keepFromKey(state2["k" .. e] or 0)
+	local result : {number} = { origSizes[1], origSizes[2], origSizes[3] }
+	for i = 1, 3 do
+		if keep[i] then
+			result[i] = sizeOf(sizes[i])
+		end
+	end
+	return result
+end
+
 -- state keys per town entity e:
 --   "c"..e  0 = untouched, 1 = converted, 2 = restoring the original zones
 --   "k"..e  keyOf the kept zones when converted (a changed flag restores the town first)
@@ -243,7 +307,7 @@ local ret : GameScript<{string : number}> = {
 				end
 				if allBack then
 					log.message("TownZoning: town " .. e .. " '" .. tostring(name) .. "' restored")
-					api.cmd.sendCommand(api.cmd.makeTownUpdateSizeCmd(entity, savedSizes(state2, e), true))
+					api.cmd.sendCommand(api.cmd.makeTownUpdateSizeCmd(entity, restoredSizes(state2, e, sizes), true))
 					state2["c" .. e] = 0
 				else
 					local attempts = state2["a" .. e] or 0
@@ -268,10 +332,10 @@ local ret : GameScript<{string : number}> = {
 
 			elseif phase == 1 and (not marked or (state2["k" .. e] or 0) ~= key) then
 				-- no flag any more, or another flag: restore the original zones first
-				local orig = savedCaps(state2, e)
-				log.message("TownZoning: restoring town " .. e .. " '" .. tostring(name) .. "' originals=" .. tostring(orig ~= nil))
-				if orig then
-					api.cmd.sendCommand(api.cmd.makeTownSetInitialLandUseCapacitiesCmd(entity, orig))
+				local target = restoredCaps(state2, e, caps, sizes)
+				log.message("TownZoning: restoring town " .. e .. " '" .. tostring(name) .. "' originals=" .. tostring(target ~= nil))
+				if target then
+					api.cmd.sendCommand(api.cmd.makeTownSetInitialLandUseCapacitiesCmd(entity, target))
 				else
 					local reference = referenceCapacities()
 					if reference then
@@ -318,6 +382,7 @@ local ret : GameScript<{string : number}> = {
 					state2["s" .. tostring(i) .. e] = sizes[i]
 				end
 				state2["k" .. e] = key
+				state2["sp" .. e] = 0
 				state2["c" .. e] = 1
 				state2["r" .. e] = 0
 				state2["a" .. e] = 0
@@ -326,6 +391,7 @@ local ret : GameScript<{string : number}> = {
 				if split then
 					newCaps = splitCaps(caps, sizes, keep)
 					state2["t" .. e] = 1
+					state2["sp" .. e] = 1
 				else
 					newCaps = keepCaps(caps, keep)
 				end

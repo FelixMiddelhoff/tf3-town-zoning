@@ -1,10 +1,6 @@
 {
     "dependencies": null,
-    "incompatibilities": [
-        "felix_residential_estate_towns_1",
-        "felix_commercial_estate_towns_1",
-        "felix_industrial_estate_towns_1"
-    ],
+    "incompatibilities": null,
     "modId": "felix_town_zoning_1",
     "options": null,
     "params": [
