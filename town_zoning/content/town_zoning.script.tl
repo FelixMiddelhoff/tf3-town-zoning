@@ -254,8 +254,9 @@ local ret : GameScript<{string : number}> = {
 		local channel = math.floor(baseConfig.locations.town.populationDensity + 0.5)
 		local split = channel % 2 == 1
 		local tutorialOn = channel % 4 >= 2
-		if tutorialOn then
-			-- the tutorial needs its towns: nothing is changed while it is on
+		local disabled = channel % 8 >= 4
+		if tutorialOn or disabled then
+			-- the tutorial needs its towns, and a former estate mod is active: nothing is changed
 			state:set(state2)
 			return
 		end
