@@ -1,0 +1,37 @@
+{
+    "dependencies": null,
+    "incompatibilities": [
+        "felix_residential_estate_towns_1",
+        "felix_commercial_estate_towns_1",
+        "felix_industrial_estate_towns_1"
+    ],
+    "modId": "felix_town_zoning_1",
+    "options": null,
+    "params": [
+        {
+            "defaultIndex": 0,
+            "key": "removed",
+            "name": "Removed zones",
+            "tooltip": "Split: the space of the removed zones is shared among the kept zones, in proportion to their size, so the town stays about as big. Keep as they are: the kept zones keep their own space, the removed zones are left empty.",
+            "uiType": "ComboBox",
+            "values": [
+                "Split among the kept zones",
+                "Keep as they are"
+            ],
+            "yearFrom": 0,
+            "yearTo": 0
+        }
+    ],
+    "preRunScript": {
+        "fileName": "felix_town_zoning_1::/mod.script@preRunFn"
+    },
+    "postRunScript": {
+        "fileName": ""
+    },
+    "revision": 1,
+    "runScript": {
+        "fileName": ""
+    },
+    "severityAdd": "None",
+    "severityRemove": "None"
+}
