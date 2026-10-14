@@ -3,6 +3,8 @@
     "files": [
         "mod.script.tl",
         "town_zoning.gs.lua",
-        "town_zoning.script.tl"
+        "town_zoning.script.tl",
+        "town_zoning_notification.res.lua",
+        "town_zoning_notification.script.tl"
     ]
 }

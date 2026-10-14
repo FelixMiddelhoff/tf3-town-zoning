@@ -4,6 +4,7 @@ local MaxRemovalAttempts <const> = 3
 local MaxRestoreAttempts <const> = 3
 local MinCapacity <const> = 10
 local FallbackCapacity <const> = 60
+local NotifyDelaySeconds <const> = 20.0
 
 -- zones: 1 = housing (residential), 2 = commerce (commercial), 3 = industry
 local ZoneOfLetter <const> = { c = 2, r = 1, i = 3 }
@@ -255,6 +256,20 @@ local ret : GameScript<{string : number}> = {
 		local split = channel % 2 == 1
 		local tutorialOn = channel % 4 >= 2
 		local disabled = channel % 8 >= 4
+
+		-- tell the player once when a former estate mod is active (the game shows the message in its notifications)
+		state2.uptime = (state2.uptime or 0.0) + CheckIntervalSeconds
+		if disabled and not state2.notified and state2.uptime >= NotifyDelaySeconds then
+			state2.notified = 1.0
+			local notification : Notification = {
+				type = "felix_town_zoning_1::/town_zoning_notification.script",
+				params = {} as table,
+				autoDismissDuration = 300000,
+			}
+			api.cmd.sendCommand(api.cmd.makeScriptingSendEventCmd("", "Notifications", "add", notification))
+			log.message("TownZoning: notification sent, a former estate mod is active")
+		end
+
 		if tutorialOn or disabled then
 			-- the tutorial needs its towns, and a former estate mod is active: nothing is changed
 			state:set(state2)
